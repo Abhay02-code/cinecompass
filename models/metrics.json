@@ -1,0 +1,58 @@
+{
+  "dataset": "Pang and Lee sentence polarity v1.0 (2005)",
+  "source": "https://www.cs.cornell.edu/people/pabo/movie-review-data/rt-polaritydata.tar.gz",
+  "archive_sha256": "a05befe52aafda71d458d188a1c54506a998b1308613ba76bbda2e5029409ce9",
+  "unique_samples": 10662,
+  "train_samples": 8529,
+  "test_samples": 2133,
+  "random_state": 42,
+  "accuracy": 0.7848101265822784,
+  "classification_report": {
+    "Negative": {
+      "precision": 0.7878787878787878,
+      "recall": 0.7797563261480788,
+      "f1-score": 0.7837965143664626,
+      "support": 1067.0
+    },
+    "Positive": {
+      "precision": 0.7818012999071495,
+      "recall": 0.7898686679174484,
+      "f1-score": 0.7858142790480634,
+      "support": 1066.0
+    },
+    "accuracy": 0.7848101265822784,
+    "macro avg": {
+      "precision": 0.7848400438929687,
+      "recall": 0.7848124970327636,
+      "f1-score": 0.784805396707263,
+      "support": 2133.0
+    },
+    "weighted avg": {
+      "precision": 0.7848414685268111,
+      "recall": 0.7848101265822784,
+      "f1-score": 0.7848049237197614,
+      "support": 2133.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      832,
+      235
+    ],
+    [
+      224,
+      842
+    ]
+  ],
+  "matrix_order": [
+    "Negative",
+    "Positive"
+  ],
+  "limitations": "Binary English sentence polarity. No neutral training class. Sentence-level random split; source film/author overlap may exist. Not an independent real-world benchmark.",
+  "versions": {
+    "python": "3.12.14",
+    "scikit_learn": "1.6.1",
+    "numpy": "2.2.6",
+    "scipy": "1.15.3"
+  }
+}
