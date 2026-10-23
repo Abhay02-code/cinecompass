@@ -1,3 +1,5 @@
+> Version 3.0.1: public setup instructions have been removed. Read RENDER_FIX.md if Render search is not working. Configure TMDB_READ_TOKEN on the actual web service; .env is local only. /api/status identifies this release.
+
 # CineCompass — movie discovery, sentiment & recommendations
 
 A complete runnable portfolio project with a live TMDB catalogue, a bundled trained movie-review classifier, content-based recommendations, accounts and persistent watchlists. No five-film demo catalogue, synthetic audience reviews, paid LLM or runtime model download.
@@ -50,13 +52,19 @@ TMDB_READ_TOKEN=paste_your_api_read_access_token_here
 APP_ENV=development
 ```
 
-5. Restart the server. The setup card disappears and live discovery loads.
+5. Restart the server. Live discovery loads after the service is restarted with a valid credential.
 
-With no token, the app shows setup instructions; the trained review analyser, accounts and model results still work. It never presents mock movie data as real. Keep `.env` private: it is excluded from Git. Invalid tokens or network/API errors show clear messages. TMDB and its image CDN must be reachable from the client/server network.
+With no token, visitors see a short movie-service unavailable message; the trained review analyser, accounts and model results still work. It never presents mock movie data as real. Keep `.env` private: it is excluded from Git. Invalid tokens or network/API errors show clear messages. TMDB and its image CDN must be reachable from the client/server network.
+
+## Updated search and review experience
+
+Type at least two characters in the movie search box. Live suggestions show the movie poster, title, year, genres and rating. Click a suggestion to open that exact movie’s reviews, sentiment summary, story and related films. Arrow keys + Enter select a suggestion; Escape dismisses the list. The search button still opens full search results and year filtering.
+
+Suggestions require your TMDB token and network access. Loading, no-match and service-error states are displayed honestly; no sample catalogue is substituted. The redesigned movie page shows review excerpts immediately instead of hiding every review behind a collapsed panel.
 
 ## Features
 
-- Live title search, optional year, pagination and selection of the correct movie.
+- Live autocomplete while typing, plus title/year search, pagination and selection of the exact movie.
 - Discover by genre, original language (including Hindi, Tamil, Telugu and Malayalam) and sort order. Filters apply to discovery; search uses title/year.
 - Posters, story, cast, genre, runtime, TMDB rating and YouTube trailer link when available.
 - Real English review sample from TMDB, with per-review sentiment and aggregate counts.
@@ -208,7 +216,7 @@ Rate limits and API caches use per-process memory; the supplied command delibera
 
 ## Troubleshooting
 
-- **Only setup instructions:** set TMDB_READ_TOKEN in `.env`, then restart. On Render, use its Environment settings.
+- **Movie service unavailable:** set TMDB_READ_TOKEN in `.env`, then restart. On Render, use its Environment settings.
 - **No suitable Python runtime:** the launcher does not require exactly 3.11; run `py --list` and install/use Python 3.10–3.13.
 - **Module not found:** use `.venv\Scripts\python.exe`, not a different Python interpreter. In VS Code select this environment via Python: Select Interpreter.
 - **Invalid token:** use the API Read Access Token (bearer), not v3 key.
@@ -224,3 +232,9 @@ Rate limits and API caches use per-process memory; the supplied command delibera
 Movie metadata, artwork and review content come from TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB. The unmodified approved TMDB logo is included in the model/credits page. See https://developer.themoviedb.org/docs/faq for attribution and API terms. Developer access is intended for non-commercial use under TMDB terms; obtain appropriate permission for commercial use.
 
 Sentiment dataset: Bo Pang and Lillian Lee, *Seeing stars: Exploiting class relationships for sentiment categorization with respect to rating scales*, ACL 2005. Review text copyrights remain with their original owners. Dataset download is solely through the original source. Dependencies retain their respective licenses. Project source code is under the MIT license; this does not relicense external data, posters, logos or dataset/model usage rights.
+
+### Autocomplete endpoint
+
+`GET /api/search?q=inter` returns up to 8 non-adult, deduplicated movie matches, with title, year, poster, genres, rating and detail URL. Queries under two characters return an empty list without calling TMDB. Queries over 100 characters return 400; upstream errors return JSON with an appropriate status. Browser input is debounced by 300 ms and outdated requests are cancelled/ignored. No API token is exposed in the response.
+
+The regression suite now includes autocomplete validation, deduplication, service errors and visible review excerpts. UI workflows are checked with isolated API fixtures; that is not verification of your live credentials.

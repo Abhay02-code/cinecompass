@@ -19,13 +19,15 @@ def configured():
 def fetch(path, **params):
     token = current_app.config.get('TMDB_READ_TOKEN')
     if not token:
-        raise MovieError('Add your TMDB API Read Access Token to .env (or Render Environment) to enable live movies.', 503)
+        current_app.logger.error('MOVIE_DATA_NOT_CONFIGURED: TMDB_READ_TOKEN is missing from the web service Environment.')
+        raise MovieError('Movie search is temporarily unavailable. Please try again later.', 503)
     try:
         response = requests.get('https://api.themoviedb.org/3/'+path,
                                 headers={'Authorization': 'Bearer '+token},
                                 params={'language':'en-US', **params}, timeout=(3, 8))
         if response.status_code in (401,403):
-            raise MovieError('TMDB rejected the token. Check your API Read Access Token.', 503)
+            current_app.logger.error('MOVIE_DATA_AUTH_FAILED: TMDB rejected the server credential (HTTP %s). Replace TMDB_READ_TOKEN in the web service Environment.', response.status_code)
+            raise MovieError('Movie search is temporarily unavailable. Please try again later.', 503)
         if response.status_code == 404:
             raise MovieError('Movie not found.', 404)
         if response.status_code == 429:
@@ -34,7 +36,8 @@ def fetch(path, **params):
         return response.json()
     except (requests.RequestException, ValueError) as exc:
         # Never log exception URLs/headers, which could include sensitive configuration.
-        raise MovieError('Cannot reach TMDB. Check network connectivity and try again.', 502) from exc
+        current_app.logger.error('MOVIE_DATA_UPSTREAM_FAILED: %s while contacting the movie provider.', type(exc).__name__)
+        raise MovieError('Movies could not be loaded right now. Please try again shortly.', 502) from exc
 
 
 def search(query, page=1, year=None):

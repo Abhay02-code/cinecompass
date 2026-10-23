@@ -1,3 +1,5 @@
+Version 3.0.1. For an existing Render deployment, follow RENDER_FIX.md.
+
 # Abhay — start here
 
 ## 1. Run in VS Code
@@ -28,7 +30,8 @@ Do not share the token or push `.env` to GitHub.
 
 ## 3. Try the full workflow
 
-- Search any available movie and open its detail page.
+- Type at least two letters of a movie name. Suggestions appear below the search box.
+- Click the correct movie/year to open audience reviews and sentiment. Arrow keys + Enter also work.
 - View actual available English reviews and calculated sentiment.
 - Create an account, save movies, like a few and choose genres in My library.
 - Open For you for personalised recommendations.
@@ -43,3 +46,7 @@ Follow **README.md → Push to GitHub**, then **Deploy on Render**.
 Render Blueprint creates a web service plus PostgreSQL. Add your token, review plans, then deploy. Secrets and database settings are supplied in Render, not by uploading `.env`.
 
 The included trained sentiment model runs immediately after dependencies are installed; you do not need to retrain it.
+
+## Updating from the previous ZIP
+
+Extract this updated project into a separate folder. Copy your existing `.env` into its `cinecompass` folder, or enter the token again. Run `start.bat`. Do not replace your old `instance` folder if you want to retain the old local account data: after stopping both apps, you can copy the old `instance/cinecompass.db` into the new project’s `instance` folder. PostgreSQL data stays in the same configured database on Render; no schema change is required by this UI update.

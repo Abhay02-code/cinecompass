@@ -7,3 +7,4 @@ instance/*
 !instance/.gitkeep
 .pytest_cache/
 *.db
+.cinecompass-backup/

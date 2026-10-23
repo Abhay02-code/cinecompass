@@ -1,0 +1,17 @@
+<div class="search-shell" data-movie-search>
+  <form class="searchbar" method="get" action="/" role="search" autocomplete="off">
+    <span class="search-icon" aria-hidden="true">⌕</span>
+    <label class="sr-only" for="search">Search movie title</label>
+    <input id="search" name="q" value="{{ query|default('') }}" placeholder="Start typing a movie name…" maxlength="100" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="movie-suggestions" aria-describedby="search-help" required>
+    <button type="button" class="clear-search" aria-label="Clear search" hidden>×</button>
+    <button type="submit" class="search-submit">Search <span aria-hidden="true">↗</span></button>
+  </form>
+  <div class="suggestions-panel" hidden>
+    <div class="suggestions-heading"><span>MOVIE MATCHES</span><span>Choose a film to read reviews ↵</span></div>
+    <p class="suggestion-status" role="status" aria-live="polite"></p>
+    <div id="movie-suggestions" role="listbox" aria-label="Movie suggestions"></div>
+    <a class="all-results" href="/">See all search results <span>→</span></a>
+    <p class="suggestions-help">↑ ↓ to browse · Enter to open · Esc to close</p>
+  </div>
+  <span id="search-help" class="sr-only">Type at least two characters. Choose a suggestion to open its movie reviews.</span>
+</div>

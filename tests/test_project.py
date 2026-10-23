@@ -23,7 +23,9 @@ class ProjectTests(unittest.TestCase):
     def register(self,name='abhay'):
         return self.client.post('/register',data={'username':name,'password':'a-strong-password','confirm':'a-strong-password'})
     def test_configuration_and_model_page(self):
-        self.assertIn(b'Connect your movie catalogue',self.client.get('/').data)
+        self.assertIn(b'Taking a short intermission',self.client.get('/').data)
+        self.assertNotIn(b'Connect your movie catalogue',self.client.get('/').data)
+        self.assertNotIn(b'TMDB_READ_TOKEN',self.client.get('/').data)
         self.assertNotIn(b'DEMO MODE',self.client.get('/').data)
         self.assertEqual(self.client.get('/model').status_code,200)
         self.assertEqual(self.client.get('/health').json['status'],'ok')
@@ -116,10 +118,10 @@ class ProjectTests(unittest.TestCase):
         import requests
         self.app.config['TMDB_READ_TOKEN']='token'
         fake.side_effect=requests.Timeout()
-        self.assertIn(b'Cannot reach TMDB',self.client.get('/?q=test').data)
+        self.assertIn(b'Movies could not be loaded',self.client.get('/?q=test').data)
         fake.side_effect=None; fake.return_value=Mock(status_code=401)
         cache.clear()
-        self.assertIn(b'TMDB rejected',self.client.get('/?q=test').data)
+        self.assertIn(b'Movie search is temporarily unavailable',self.client.get('/?q=test').data)
     @patch('tmdb.fetch')
     def test_review_dedup_and_cap(self,fake):
         fake.return_value={'total_results':60,'total_pages':3,'results':[{'id':'one','author':'A','content':'great film'}]}
@@ -131,5 +133,53 @@ class ProjectTests(unittest.TestCase):
         self.assertNotIn(b'<script>alert(1)',page.data)
         self.assertEqual(page.headers['X-Frame-Options'],'DENY')
         self.assertIn("default-src 'self'",page.headers['Content-Security-Policy'])
+
+    @patch('tmdb.search')
+    def test_autocomplete_results(self, fake):
+        self.app.config['TMDB_READ_TOKEN'] = 'token'
+        fake.return_value = {'results': [FILM, FILM, dict(OTHER, adult=True), dict(COMEDY, poster_path=None)]}
+        response = self.client.get('/api/search?q=space')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual([m['id'] for m in response.json['results']], [1, 3])
+        self.assertEqual(response.json['results'][0]['url'], '/movie/1')
+        self.assertEqual(response.json['results'][0]['year'], '2020')
+        self.assertEqual(response.json['results'][0]['genres'], ['Science fiction'])
+        self.assertNotIn('overview', response.json['results'][0])
+
+    @patch('tmdb.search')
+    def test_autocomplete_short_invalid_and_failure(self, fake):
+        self.assertEqual(self.client.get('/api/search?q=s').json, {'results': []})
+        fake.assert_not_called()
+        self.assertEqual(self.client.get('/api/search?q='+'x'*101).status_code, 400)
+        self.assertEqual(self.client.get('/api/search?q=film&year=abc').status_code, 400)
+        fake.side_effect = tmdb.MovieError('Search temporarily unavailable.', 503)
+        response = self.client.get('/api/search?q=space')
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json['error'], 'Search temporarily unavailable.')
+
+    def test_autocomplete_requires_live_credentials(self):
+        response = self.client.get('/api/search?q=interstellar')
+        self.assertEqual(response.status_code, 503)
+        self.assertIn('temporarily unavailable', response.json['error'])
+        self.assertNotIn('TOKEN', response.json['error'])
+
+    @patch('tmdb.candidates', return_value=([], []))
+    @patch('tmdb.reviews', return_value=([{'author': 'Viewer', 'content': 'Wonderful film with excellent acting.', 'id': 'r1'}], 1, 0))
+    @patch('tmdb.detail', return_value=FILM)
+    def test_movie_reviews_are_visible(self, *mocks):
+        page = self.client.get('/movie/1')
+        self.assertIn(b'class="audience-review"', page.data)
+        self.assertIn(b'Wonderful film with excellent acting.', page.data)
+        self.assertIn(b'id="reviews"', page.data)
+        self.assertIn(b'role="combobox"', page.data)
+
+    def test_deployment_version_and_asset_refresh(self):
+        status = self.client.get('/api/status')
+        self.assertEqual(status.json['version'], '3.0.1')
+        self.assertFalse(status.json['movie_data_configured'])
+        self.assertEqual(set(status.json), {'version', 'movie_data_configured'})
+        self.assertEqual(status.headers['Cache-Control'], 'no-store')
+        self.assertIn(b'app.js?v=3.0.1', self.client.get('/').data)
+        self.assertIn(b'style.css?v=3.0.1', self.client.get('/').data)
 
 if __name__=='__main__': unittest.main()
