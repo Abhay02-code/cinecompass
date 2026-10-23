@@ -20,10 +20,10 @@ if (form) form.addEventListener('submit', async event => {
     label.className = `result-label ${data.label.toLowerCase()}`;
     label.textContent = data.label;
     const description = document.createElement('p');
-    description.textContent = `Positive estimate: ${(data.positive_probability*100).toFixed(1)}% · Negative: ${(data.negative_probability*100).toFixed(1)}%`;
+    description.textContent = data.explanation;
     const note = document.createElement('p');
     note.className = 'fineprint';
-    note.textContent = `Uncalibrated binary model estimates.${data.saved ? ' Saved to your private history.' : ' This analysis was not saved.'}`;
+    note.textContent = `English sentiment estimate; sarcasm and context can be misread.${data.saved ? ' Saved to your private history.' : ' This analysis was not saved.'}`;
     output.append(label, description, note);
   } catch (error) {
     output.textContent = error.message || 'Connection failed. Please try again.';
@@ -146,4 +146,47 @@ function replaceUnavailableImage(image) {
 document.addEventListener('error', event => replaceUnavailableImage(event.target), true);
 for (const image of document.images) {
   if (image.complete && image.naturalWidth === 0) replaceUnavailableImage(image);
+}
+
+// Account forms: accessible password controls and duplicate-submit prevention.
+for (const button of document.querySelectorAll('[data-password-toggle]')) {
+  button.addEventListener('click', () => {
+    const input = document.getElementById(button.dataset.passwordToggle);
+    if (!input) return;
+    const visible = input.type === 'password';
+    input.type = visible ? 'text' : 'password';
+    button.textContent = visible ? 'Hide' : 'Show';
+    button.setAttribute('aria-pressed', String(visible));
+    button.setAttribute('aria-label', `${visible ? 'Hide' : 'Show'} ${input.id === 'confirm' ? 'confirmation password' : 'password'}`);
+  });
+}
+const accountForm = document.querySelector('[data-account-form]');
+if (accountForm) {
+  const submit = accountForm.querySelector('[type="submit"]');
+  function resetSubmit() {
+    submit.disabled = false;
+    submit.value = submit.dataset.idleLabel;
+    accountForm.removeAttribute('aria-busy');
+  }
+  accountForm.addEventListener('submit', () => {
+    submit.disabled = true;
+    submit.value = accountForm.dataset.register === 'true' ? 'Creating account…' : 'Signing in…';
+    accountForm.setAttribute('aria-busy', 'true');
+    accountForm.querySelector('.account-submit-status').textContent = submit.value;
+  });
+  window.addEventListener('pageshow', resetSubmit);
+  const invalid = accountForm.querySelector('[aria-invalid="true"]');
+  if (invalid) invalid.focus();
+  else document.querySelector('.account-alert')?.focus();
+  const confirm = accountForm.querySelector('#confirm');
+  const password = accountForm.querySelector('#password');
+  if (confirm) {
+    function showMatch() {
+      const hint = document.getElementById('confirm-match');
+      hint.textContent = !confirm.value ? '' : confirm.value === password.value ? 'Passwords match.' : 'Passwords do not match yet.';
+      hint.classList.toggle('matches', !!confirm.value && confirm.value === password.value);
+    }
+    confirm.addEventListener('input', showMatch);
+    password.addEventListener('input', showMatch);
+  }
 }

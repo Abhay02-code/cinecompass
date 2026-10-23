@@ -1,4 +1,6 @@
-Version 3.0.1. For an existing Render deployment, follow RENDER_FIX.md.
+For signup/login fixes on an existing project, read AUTH_FIX.md.
+
+Version 3.1.0. For an existing Render deployment, follow RENDER_FIX.md.
 
 # Abhay — start here
 

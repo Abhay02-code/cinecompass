@@ -38,7 +38,7 @@ class ProjectTests(unittest.TestCase):
         self.assertEqual(self.client.post('/login',data={'username':'abhay','password':'a-strong-password'}).status_code,302)
     def test_duplicate_registration(self):
         self.register(); self.client.post('/logout')
-        self.assertIn(b'already taken',self.register().data)
+        self.assertIn(b'This username is taken',self.register().data)
     def test_validation(self):
         for data in ({},[],{'text':5},{'text':' '},{'text':'x'*5001},{'text':'good movie','save':'yes'}):
             self.assertEqual(self.client.post('/api/analyze',json=data).status_code,400)
@@ -175,11 +175,11 @@ class ProjectTests(unittest.TestCase):
 
     def test_deployment_version_and_asset_refresh(self):
         status = self.client.get('/api/status')
-        self.assertEqual(status.json['version'], '3.0.1')
+        self.assertEqual(status.json['version'], '3.1.0')
         self.assertFalse(status.json['movie_data_configured'])
-        self.assertEqual(set(status.json), {'version', 'movie_data_configured'})
+        self.assertEqual(set(status.json), {'version', 'movie_data_configured', 'shared_account_database'})
         self.assertEqual(status.headers['Cache-Control'], 'no-store')
-        self.assertIn(b'app.js?v=3.0.1', self.client.get('/').data)
-        self.assertIn(b'style.css?v=3.0.1', self.client.get('/').data)
+        self.assertIn(b'app.js?v=3.1.0', self.client.get('/').data)
+        self.assertIn(b'style.css?v=3.1.0', self.client.get('/').data)
 
 if __name__=='__main__': unittest.main()

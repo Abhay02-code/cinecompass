@@ -1,4 +1,6 @@
-> Version 3.0.1: public setup instructions have been removed. Read RENDER_FIX.md if Render search is not working. Configure TMDB_READ_TOKEN on the actual web service; .env is local only. /api/status identifies this release.
+> Account update 3.1.0: read AUTH_FIX.md for signup/login improvements and Render account persistence requirements.
+
+> Version 3.1.0: public setup instructions have been removed. Read RENDER_FIX.md if Render search is not working. Configure TMDB_READ_TOKEN on the actual web service; .env is local only. /api/status identifies this release.
 
 # CineCompass — movie discovery, sentiment & recommendations
 
@@ -160,7 +162,7 @@ Or with an already-downloaded archive:
 .\.venv\Scripts\python.exe scripts\train_sentiment.py --archive C:\path\rt-polaritydata.tar.gz
 ```
 
-The default is binary polarity. Positive estimate >=0.60 → Positive; <=0.40 → Negative; between → Uncertain. **Uncertain is not a learned neutral class.** Reported test accuracy uses the standard 0.50 boundary; do not confuse it with the three display buckets. Probabilities are uncalibrated. Dataset performance is not accuracy on all real-world reviews. The old English sentence dataset may overlap by film/author across the random split, and differs from modern full-length reviews. Hindi/Hinglish, sarcasm and nuanced reviews are unsupported or unreliable. Do not claim the model is trained on TMDB or IMDb full reviews.
+Short reviews (up to 50 words) use VADER English negation-aware rules; mixed or weak sentiment abstains as Uncertain. Longer reviews use the trained classifier: positive estimate >=0.60 → Positive; <=0.40 → Negative; between → Uncertain. The reported benchmark applies only to the original classifier, before short-review routing. See MODEL_CARD.md for exact thresholds. **Uncertain is not a learned neutral class.** Reported test accuracy uses the standard 0.50 boundary; do not confuse it with the three display buckets. Probabilities are uncalibrated. Dataset performance is not accuracy on all real-world reviews. The old English sentence dataset may overlap by film/author across the random split, and differs from modern full-length reviews. Hindi/Hinglish, sarcasm and nuanced reviews are unsupported or unreliable. Do not claim the model is trained on TMDB or IMDb full reviews.
 
 Only load the bundled trusted joblib model. Joblib/pickle files from strangers can execute code. Keep scikit-learn and numeric dependencies pinned when using a serialized model.
 
@@ -208,7 +210,7 @@ start.bat / start.sh       Local launchers
 
 ## Operational notes
 
-This is a complete initial portfolio application, not a claim of enterprise readiness. Accounts have no email verification, password recovery, admin portal or account deletion UI. Review text can be deleted; account deletion currently requires an operator/database action. Deploy only with a database plan/backup policy suitable for the data you intend to retain.
+This is a complete initial portfolio application, not a claim of enterprise readiness. Accounts have no email verification, password recovery, admin portal or account deletion UI. Sign-in supports optional remembered sessions and safe local return URLs. Review text can be deleted; account deletion currently requires an operator/database action. Deploy only with a database plan/backup policy suitable for the data you intend to retain.
 
 Rate limits and API caches use per-process memory; the supplied command deliberately uses one worker. Limits reset on restart and are not distributed. On Render, the remote-address limiter may group clients behind a proxy; for a larger deployment use a trusted-proxy configuration plus shared Redis rate-limit/cache storage. Do not blindly trust arbitrary forwarded headers. The bundled configuration does not enable proxy trust.
 

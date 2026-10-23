@@ -3,6 +3,7 @@ import os
 import re
 import secrets
 from pathlib import Path
+from datetime import timedelta
 from dotenv import load_dotenv, dotenv_values
 from flask import Flask, abort, flash, jsonify, redirect, render_template, request, session, url_for
 from flask_login import current_user, login_required, login_user, logout_user
@@ -12,12 +13,14 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 from extensions import cache, csrf, db, limiter, login
 from database import User, WatchItem, Analysis
-from forms import RegisterForm, LoginForm, PreferenceForm
+from forms import PreferenceForm
+from accounts import register_account_routes, csrf_auth_error, auth_page, next_destination
+from forms import RegisterForm, LoginForm
 import tmdb
 import ml
 
 ROOT = Path(__file__).resolve().parent
-RELEASE = '3.0.1'
+RELEASE = '3.1.0'
 load_dotenv(ROOT / '.env', encoding='utf-8-sig')
 
 
@@ -50,6 +53,8 @@ def create_app(test_config=None):
                       TMDB_READ_TOKEN=token,
                       MAX_CONTENT_LENGTH=32768, SESSION_COOKIE_HTTPONLY=True,
                       SESSION_COOKIE_SAMESITE='Lax', SESSION_COOKIE_SECURE=production,
+                      REMEMBER_COOKIE_HTTPONLY=True, REMEMBER_COOKIE_SAMESITE='Lax',
+                      REMEMBER_COOKIE_SECURE=production, REMEMBER_COOKIE_DURATION=timedelta(days=14),
                       WTF_CSRF_TIME_LIMIT=3600)
     if test_config: app.config.update(test_config)
     db.init_app(app); login.init_app(app); csrf.init_app(app); cache.init_app(app); limiter.init_app(app)
@@ -73,8 +78,9 @@ def create_app(test_config=None):
         response.headers['X-Frame-Options']='DENY'
         response.headers['Referrer-Policy']='strict-origin-when-cross-origin'
         response.headers['Content-Security-Policy']="default-src 'self'; img-src 'self' https://image.tmdb.org; style-src 'self'; script-src 'self'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
-        if current_user.is_authenticated:
-            response.headers['Cache-Control']='no-store'
+        if current_user.is_authenticated or response.mimetype == 'text/html':
+            response.headers['Cache-Control']='private, no-store, max-age=0'
+            response.headers['Pragma']='no-cache'
         return response
 
     def page_number():
@@ -159,37 +165,7 @@ def create_app(test_config=None):
         return render_template('movie.html',movie=item,reviews=reviews,summary=ml.aggregate(reviews),total=total,
                                truncated=truncated,warning=warning,recs=recs,rec_warnings=warnings,saved=saved,trailer=trailer)
 
-    @app.route('/register',methods=['GET','POST'])
-    @limiter.limit('10 per minute',methods=['POST'])
-    def register():
-        if current_user.is_authenticated: return local_redirect()
-        form=RegisterForm()
-        if form.validate_on_submit():
-            user=User(username=form.username.data.strip().lower(),password_hash=generate_password_hash(form.password.data))
-            db.session.add(user)
-            try: db.session.commit()
-            except IntegrityError:
-                db.session.rollback(); form.username.errors.append('That username is already taken.')
-            else:
-                session.clear(); login_user(user); flash('Welcome! Choose your favourite genres in your library.'); return redirect(url_for('library'))
-        return render_template('auth.html',form=form,title='Create your account',register=True)
-
-    @app.route('/login',methods=['GET','POST'])
-    @limiter.limit('10 per minute',methods=['POST'])
-    def signin():
-        if current_user.is_authenticated: return local_redirect()
-        form=LoginForm()
-        if form.validate_on_submit():
-            user=db.session.scalar(select(User).where(User.username==form.username.data.strip().lower()))
-            if user and check_password_hash(user.password_hash,form.password.data):
-                session.clear(); login_user(user); return local_redirect()
-            form.password.errors.append('Invalid username or password.')
-        return render_template('auth.html',form=form,title='Welcome back',register=False)
-
-    @app.post('/logout')
-    @login_required
-    def signout():
-        logout_user(); session.clear(); return local_redirect()
+    register_account_routes(app)
 
     @app.post('/watchlist/<int:movie_id>')
     @login_required
@@ -266,7 +242,8 @@ def create_app(test_config=None):
 
     @app.get('/api/status')
     def deployment_status():
-        response = jsonify(version=RELEASE, movie_data_configured=tmdb.configured())
+        response = jsonify(version=RELEASE, movie_data_configured=tmdb.configured(),
+                           shared_account_database=db.engine.url.drivername.startswith('postgresql'))
         response.headers['Cache-Control'] = 'no-store'
         return response
 
@@ -280,6 +257,8 @@ def create_app(test_config=None):
 
     @app.errorhandler(CSRFError)
     def csrf_error(exc):
+        if request.endpoint in ('signin', 'register'):
+            return csrf_auth_error()
         message='Your form expired or is missing its security token. Refresh the page and try again.'
         if request.path.startswith('/api/'): return jsonify(error=message),400
         return render_template('error.html',message=message,status=400),400
@@ -287,6 +266,11 @@ def create_app(test_config=None):
     for code in (400,404,413,429,500):
         def handler(exc):
             code=getattr(exc,'code',500)
+            if code == 429 and request.endpoint in ('signin', 'register'):
+                registering = request.endpoint == 'register'
+                form = RegisterForm(formdata=None) if registering else LoginForm(formdata=None)
+                form.username.data = request.form.get('username', '').strip().lower()[:40]
+                return auth_page(form, registering, next_destination(), 'Too many attempts. Wait a minute and try again.', 429)
             message=getattr(exc,'description','Something went wrong.') if code!=500 else 'An unexpected error occurred. Please try again.'
             if request.path.startswith('/api/'): return jsonify(error=message),code
             return render_template('error.html',message=message,status=code),code

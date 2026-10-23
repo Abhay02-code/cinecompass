@@ -1,4 +1,6 @@
-# Render repair — version 3.0.1
+For account problems, follow AUTH_FIX.md. This release includes the previous movie-data repair.
+
+# Render repair — version 3.1.0
 
 Two separate issues caused the screenshot:
 
@@ -9,11 +11,12 @@ This patch includes the complete current frontend and search endpoint; removes d
 
 ## Apply to the existing GitHub project
 
-Extract the repair ZIP to a folder named cinecompass-render-fix-v3 in Downloads.
+Extract the repair ZIP to a folder named cinecompass-auth-fix-v4 in Downloads.
 Keep your existing repository open in VS Code. From its terminal (the directory containing app.py):
 
 ```powershell
-.\.venv\Scripts\python.exe "$env:USERPROFILE\Downloads\cinecompass-render-fix-v3\apply_update.py"
+.\.venv\Scripts\python.exe "$env:USERPROFILE\Downloads\cinecompass-auth-fix-v4\apply_update.py"
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 git add .
 git commit -m "Fix deployed movie search and remove public setup screen"
 git push
@@ -23,7 +26,7 @@ The updater backs up changed files in .cinecompass-backup (ignored by Git), copi
 
 ## Configure the actual web service
 
-In Render, open the **cinecompass-1 web service** whose URL is shown in your screenshot. Do not add the token to the PostgreSQL service or only your local computer.
+In Render, open the **cinecompass-2 web service** whose URL is shown in your screenshot. Do not add the token to the PostgreSQL service or only your local computer.
 
 Environment → add/update:
 
@@ -37,23 +40,23 @@ The Render Environment label “Production” in the dashboard does not itself s
 
 ## Verify the deployment
 
-Open https://cinecompass-1.onrender.com/api/status.
+Open https://cinecompass-2.onrender.com/api/status.
 
 Expected after applying the patch AND adding the credential:
 
 ```json
-{"version":"3.0.1","movie_data_configured":true}
+{"version":"3.1.0","movie_data_configured":true,"shared_account_database":true}
 ```
 
 True only means a non-empty credential was loaded; it does not prove the token is valid. Then open:
-https://cinecompass-1.onrender.com/api/search?q=interstellar
+https://cinecompass-2.onrender.com/api/search?q=interstellar
 
 Expected: a JSON results array containing movie matches. A 404 on /api/status means old code is still running. A false flag means the web service is missing its secret. A 503 with the flag true indicates the provider rejected the credential or is unavailable; inspect Render logs. No token value is returned by the status endpoint.
 
 Optional terminal check:
 
 ```powershell
-.\.venv\Scripts\python.exe scripts\check_deployment.py https://cinecompass-1.onrender.com
+.\.venv\Scripts\python.exe scripts\check_deployment.py https://cinecompass-2.onrender.com
 ```
 
 After this works, open the homepage, press Ctrl+Shift+R and type at least two letters. Select a suggestion to open movie details, audience reviews and sentiment. The new release uses the purple interface, not the older green setup screen.

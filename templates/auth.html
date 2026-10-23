@@ -1,1 +1,58 @@
-{% extends 'base.html' %}{% block content %}<section class="authlayout"><div><span class="section-kicker">YOUR TASTE. YOUR CINEMA.</span><h1>Make room for<br><em>great stories.</em></h1><p class="lead">Save your discoveries, like your favourites,<br>and find your next watch.</p></div><div class="panel authpanel"><h2>{{ title }}</h2><p class="muted small">No email required. Choose a username you’ll remember.</p><form method="post">{{ form.hidden_tag() }}{% for field in form if field.name not in ('csrf_token','submit') %}<div class="field">{{ field.label }}{{ field(autocomplete='username' if field.name=='username' else 'new-password' if register else 'current-password') }}{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>{% endfor %}{{ form.submit() }}</form><p class="small">{% if register %}Already a member? <a href="{{ url_for('signin') }}">Sign in</a>{% else %}New here? <a href="{{ url_for('register') }}">Create an account</a>{% endif %}</p><p class="fineprint">Use at least 10 characters for your password. This release has no password recovery; keep your login details safe.</p></div></section>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}{{ title }} · CineCompass{% endblock %}
+{% block content %}
+<section class="account-layout">
+  <div class="account-story">
+    <span class="section-kicker">YOUR PERSONAL CINEMA</span>
+    <h1>Good films.<br><em>Great company.</em></h1>
+    <p>Make a little space for your favourite stories.</p>
+    <div class="account-benefits">
+      <div><span>＋</span><div><b>A watchlist that stays with you</b><p>Keep every “I’ll watch that later” in one place.</p></div></div>
+      <div><span>♡</span><div><b>Recommendations with your taste</b><p>Like a few films. Discover your next favourite.</p></div></div>
+      <div><span>✦</span><div><b>Your reviews, your perspective</b><p>Save your own sentiment analyses privately.</p></div></div>
+    </div>
+    <a class="quiet-link" href="{{ url_for('index') }}">← Keep exploring movies</a>
+  </div>
+  <div class="account-card">
+    <div class="account-tabs" aria-label="Account options">
+      <a class="{{ 'active' if not register else '' }}" href="{{ url_for('signin', next=next_url) if next_url else url_for('signin') }}" {% if not register %}aria-current="page"{% endif %}>Sign in</a>
+      <a class="{{ 'active' if register else '' }}" href="{{ url_for('register', next=next_url) if next_url else url_for('register') }}" {% if register %}aria-current="page"{% endif %}>Create account</a>
+    </div>
+    <h2>{{ title }}</h2>
+    <p class="account-subtitle">{{ 'Choose a username and make yourself at home.' if register else 'Use your CineCompass account to continue.' }}</p>
+    {% if auth_message %}<div class="account-alert" role="alert" tabindex="-1">{{ auth_message }}</div>{% elif form.errors %}<div class="account-alert" role="alert" tabindex="-1">Please check the highlighted fields and try again.</div>{% endif %}
+    <form method="post" action="{{ url_for('register') if register else url_for('signin') }}" class="account-form" data-account-form data-register="{{ 'true' if register else 'false' }}" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="field">
+        {{ form.username.label }}
+        {{ form.username(autocomplete='username', autocapitalize='none', spellcheck='false', placeholder='Your username', maxlength=40, aria_invalid='true' if form.username.errors else 'false', aria_describedby='username-help username-errors') }}
+        <p class="input-hint" id="username-help">{{ '3–40 letters, numbers or underscores. Case-insensitive.' if register else 'The username you chose when creating this account.' }}</p>
+        <div id="username-errors">{% for error in form.username.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+      </div>
+      <div class="field">
+        {{ form.password.label }}
+        <div class="password-wrap">
+          {{ form.password(autocomplete='new-password' if register else 'current-password', placeholder='At least 10 characters' if register else 'Your password', maxlength=128, aria_invalid='true' if form.password.errors else 'false', aria_describedby='password-help password-errors') }}
+          <button type="button" class="password-toggle" data-password-toggle="password" aria-controls="password" aria-label="Show password" aria-pressed="false">Show</button>
+        </div>
+        <p class="input-hint" id="password-help">{{ 'Use 10–128 characters. Spaces are kept exactly as entered.' if register else 'Passwords are case-sensitive.' }}</p>
+        <div id="password-errors">{% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+      </div>
+      {% if register %}
+      <div class="field">
+        {{ form.confirm.label }}
+        <div class="password-wrap">
+          {{ form.confirm(autocomplete='new-password', placeholder='Enter the same password again', maxlength=128, aria_invalid='true' if form.confirm.errors else 'false', aria_describedby='confirm-match confirm-errors') }}
+          <button type="button" class="password-toggle" data-password-toggle="confirm" aria-controls="confirm" aria-label="Show confirmation password" aria-pressed="false">Show</button>
+        </div>
+        <p class="input-hint" id="confirm-match" role="status" aria-live="polite"></p>
+        <div id="confirm-errors">{% for error in form.confirm.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+      </div>
+      {% else %}<label class="checkbox remember-choice">{{ form.remember() }} <span>{{ form.remember.label.text }}</span></label>{% endif %}
+      {{ form.submit(class_='account-submit', data_idle_label='Create account' if register else 'Sign in') }}
+      <p class="account-submit-status sr-only" role="status" aria-live="polite"></p>
+    </form>
+    <p class="account-switch">{% if register %}Already have an account? <a href="{{ url_for('signin', next=next_url) if next_url else url_for('signin') }}">Sign in →</a>{% else %}First time here? <a href="{{ url_for('register', next=next_url) if next_url else url_for('register') }}">Create an account →</a>{% endif %}</p>
+  </div>
+</section>
+{% endblock %}

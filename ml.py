@@ -2,6 +2,7 @@ import json
 from functools import lru_cache
 from pathlib import Path
 import joblib
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -16,13 +17,44 @@ def metrics():
     return json.loads((ROOT/'models/metrics.json').read_text())
 
 
+@lru_cache(maxsize=1)
+def short_review_analyzer():
+    return SentimentIntensityAnalyzer()
+
+
 def analyze(text):
+    """Short English reviews use negation-aware lexical rules; longer ones use ML.
+
+    The legacy probability fields remain the baseline model's raw estimates for
+    database/API compatibility. They are never confidence in the final label.
+    """
     model = load_model()
     p = float(model.predict_proba([text])[0, 1])
-    # Uncertain is an abstention band, NOT a neutral model class.
     label = 'Positive' if p >= .60 else 'Negative' if p <= .40 else 'Uncertain'
-    return {'label': label, 'positive_probability': round(p, 4), 'negative_probability': round(1-p, 4),
-            'model': 'TF-IDF + Logistic Regression', 'characters_analyzed': len(text)}
+    method = 'trained-classifier'
+    explanation = 'Overall wording suggests ' + label.lower() + ' sentiment.'
+    if label == 'Uncertain':
+        explanation = 'The classifier cannot clearly separate positive and negative sentiment.'
+    if len(text.split()) <= 50:
+        scores = short_review_analyzer().polarity_scores(text)
+        method = 'short-review-rules'
+        if scores['pos'] >= .10 and scores['neg'] >= .10:
+            label = 'Uncertain'
+            explanation = 'The review contains both positive and negative language.'
+        elif scores['compound'] >= .20:
+            label = 'Positive'
+            explanation = 'The short review expresses a positive opinion, accounting for nearby negation.'
+        elif scores['compound'] <= -.20:
+            label = 'Negative'
+            explanation = 'The short review expresses a negative opinion, accounting for nearby negation.'
+        else:
+            label = 'Uncertain'
+            explanation = 'There is not enough clear English sentiment to choose a positive or negative label.'
+    return {'label': label, 'positive_probability': round(p, 4),
+            'negative_probability': round(1-p, 4), 'probability_source': 'baseline-classifier-only',
+            'method': method, 'explanation': explanation,
+            'model': 'VADER short-review rules + TF-IDF Logistic Regression',
+            'characters_analyzed': len(text)}
 
 
 def aggregate(reviews):
