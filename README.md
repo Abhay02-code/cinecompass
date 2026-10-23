@@ -1,6 +1,8 @@
-> Account update 3.1.0: read AUTH_FIX.md for signup/login improvements and Render account persistence requirements.
+For creator credit and private analytics setup (release 3.2.0), start with **OWNER_ANALYTICS.md**.
 
-> Version 3.1.0: public setup instructions have been removed. Read RENDER_FIX.md if Render search is not working. Configure TMDB_READ_TOKEN on the actual web service; .env is local only. /api/status identifies this release.
+> Account update 3.2.0: read AUTH_FIX.md for signup/login improvements and Render account persistence requirements.
+
+> Version 3.2.0: public setup instructions have been removed. Read RENDER_FIX.md if Render search is not working. Configure TMDB_READ_TOKEN on the actual web service; .env is local only. /api/status identifies this release.
 
 # CineCompass — movie discovery, sentiment & recommendations
 
@@ -240,3 +242,7 @@ Sentiment dataset: Bo Pang and Lillian Lee, *Seeing stars: Exploiting class rela
 `GET /api/search?q=inter` returns up to 8 non-adult, deduplicated movie matches, with title, year, poster, genres, rating and detail URL. Queries under two characters return an empty list without calling TMDB. Queries over 100 characters return 400; upstream errors return JSON with an appropriate status. Browser input is debounced by 300 ms and outdated requests are cancelled/ignored. No API token is exposed in the response.
 
 The regression suite now includes autocomplete validation, deduplication, service errors and visible review excerpts. UI workflows are checked with isolated API fixtures; that is not verification of your live credentials.
+
+## Creator & owner dashboard
+
+Built by Abhay Kumar Aditya. Public /about and /privacy pages; private /admin/analytics. Set ADMIN_USER_ID to your own existing LIVE account ID to grant dashboard access. No automatic admin account is created. Usage analytics requires visitor opt-in; counts are estimates, not verified people. See OWNER_ANALYTICS.md for installation, database table creation, privacy and metric definitions.

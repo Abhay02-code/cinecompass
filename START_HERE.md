@@ -1,6 +1,8 @@
+For release 3.2.0 creator credit and analytics setup, read OWNER_ANALYTICS.md first.
+
 For signup/login fixes on an existing project, read AUTH_FIX.md.
 
-Version 3.1.0. For an existing Render deployment, follow RENDER_FIX.md.
+Version 3.2.0. For an existing Render deployment, follow RENDER_FIX.md.
 
 # Abhay — start here
 

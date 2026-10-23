@@ -34,3 +34,16 @@ class Analysis(db.Model):
     label = db.Column(db.String(30), nullable=False)
     positive_probability = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), default=now)
+
+
+class DailyMetric(db.Model):
+    """Anonymous counters by UTC day and fixed route, with no query strings."""
+    day = db.Column(db.Date, primary_key=True)
+    kind = db.Column(db.String(30), primary_key=True)
+    path = db.Column(db.String(80), primary_key=True)
+    count = db.Column(db.Integer, nullable=False, default=0)
+
+
+class DailyVisitor(db.Model):
+    day = db.Column(db.Date, primary_key=True)
+    visitor_hash = db.Column(db.String(64), primary_key=True)

@@ -1,3 +1,4 @@
+# After creating your live account, optionally add ADMIN_USER_ID in the WEB SERVICE Environment.
 services:
   - type: web
     name: cinecompass

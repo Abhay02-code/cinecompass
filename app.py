@@ -18,9 +18,10 @@ from accounts import register_account_routes, csrf_auth_error, auth_page, next_d
 from forms import RegisterForm, LoginForm
 import tmdb
 import ml
+from analytics import register_analytics
 
 ROOT = Path(__file__).resolve().parent
-RELEASE = '3.1.0'
+RELEASE = '3.2.0'
 load_dotenv(ROOT / '.env', encoding='utf-8-sig')
 
 
@@ -48,9 +49,11 @@ def create_app(test_config=None):
         token = token[7:].strip()
     if len(token) >= 2 and token[0] == token[-1] and token[0] in ('\"', "'"):
         token = token[1:-1].strip()
+    admin_identity = os.getenv('ADMIN_USER_ID', '').strip()
     app.config.update(SECRET_KEY=secret, SQLALCHEMY_DATABASE_URI=uri,
                       SQLALCHEMY_ENGINE_OPTIONS={'pool_pre_ping':True},
                       TMDB_READ_TOKEN=token,
+                      ADMIN_USER_ID=int(admin_identity) if re.fullmatch(r'[1-9][0-9]*', admin_identity) else None,
                       MAX_CONTENT_LENGTH=32768, SESSION_COOKIE_HTTPONLY=True,
                       SESSION_COOKIE_SAMESITE='Lax', SESSION_COOKIE_SECURE=production,
                       REMEMBER_COOKIE_HTTPONLY=True, REMEMBER_COOKIE_SAMESITE='Lax',
@@ -166,6 +169,7 @@ def create_app(test_config=None):
                                truncated=truncated,warning=warning,recs=recs,rec_warnings=warnings,saved=saved,trailer=trailer)
 
     register_account_routes(app)
+    register_analytics(app)
 
     @app.post('/watchlist/<int:movie_id>')
     @login_required
@@ -263,7 +267,7 @@ def create_app(test_config=None):
         if request.path.startswith('/api/'): return jsonify(error=message),400
         return render_template('error.html',message=message,status=400),400
 
-    for code in (400,404,413,429,500):
+    for code in (400,403,404,413,429,500):
         def handler(exc):
             code=getattr(exc,'code',500)
             if code == 429 and request.endpoint in ('signin', 'register'):
