@@ -1,8 +1,10 @@
-For release 3.2.0 creator credit and analytics setup, read OWNER_ANALYTICS.md first.
+New in release 3.3.0: COMMUNITY_REVIEWS.md explains public ratings, reviews, counts and deployment.
+
+For release 3.3.0 creator credit and analytics setup, read OWNER_ANALYTICS.md first.
 
 For signup/login fixes on an existing project, read AUTH_FIX.md.
 
-Version 3.2.0. For an existing Render deployment, follow RENDER_FIX.md.
+Version 3.3.0. For an existing Render deployment, follow RENDER_FIX.md.
 
 # Abhay — start here
 

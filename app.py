@@ -12,16 +12,17 @@ from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 from extensions import cache, csrf, db, limiter, login
-from database import User, WatchItem, Analysis
+from database import User, WatchItem, Analysis, MovieReview
 from forms import PreferenceForm
 from accounts import register_account_routes, csrf_auth_error, auth_page, next_destination
 from forms import RegisterForm, LoginForm
 import tmdb
 import ml
 from analytics import register_analytics
+from community import community_context, register_community
 
 ROOT = Path(__file__).resolve().parent
-RELEASE = '3.2.0'
+RELEASE = '3.3.0'
 load_dotenv(ROOT / '.env', encoding='utf-8-sig')
 
 
@@ -152,7 +153,7 @@ def create_app(test_config=None):
         return jsonify(results=results)
 
     @app.get('/movie/<int:movie_id>')
-    def movie(movie_id):
+    def movie(movie_id, community_form=None, status=200):
         item=tmdb.detail(movie_id)
         reviews, total, truncated, warning=[],0,0,None
         try:
@@ -166,10 +167,12 @@ def create_app(test_config=None):
             saved=db.session.scalar(select(WatchItem).where(WatchItem.user_id==current_user.id, WatchItem.movie_id==movie_id))
         trailer=next((v['key'] for v in item.get('videos',{}).get('results',[]) if v.get('site')=='YouTube' and v.get('type')=='Trailer' and re.fullmatch(r'[\w-]+',v.get('key',''))),None)
         return render_template('movie.html',movie=item,reviews=reviews,summary=ml.aggregate(reviews),total=total,
-                               truncated=truncated,warning=warning,recs=recs,rec_warnings=warnings,saved=saved,trailer=trailer)
+                               truncated=truncated,warning=warning,recs=recs,rec_warnings=warnings,saved=saved,trailer=trailer,
+                               **community_context(movie_id,community_form)), status
 
     register_account_routes(app)
     register_analytics(app)
+    register_community(app, movie)
 
     @app.post('/watchlist/<int:movie_id>')
     @login_required
@@ -200,7 +203,8 @@ def create_app(test_config=None):
         if request.method=='GET': form.genres.data=(current_user.genres or '').split(',')
         items=db.session.scalars(select(WatchItem).where(WatchItem.user_id==current_user.id).order_by(WatchItem.created_at.desc())).all()
         history=db.session.scalars(select(Analysis).where(Analysis.user_id==current_user.id).order_by(Analysis.id.desc()).limit(30)).all()
-        return render_template('library.html',items=items,history=history,form=form)
+        public_reviews=db.session.scalars(select(MovieReview).where(MovieReview.user_id==current_user.id).order_by(MovieReview.updated_at.desc()).limit(20)).all()
+        return render_template('library.html',items=items,history=history,form=form,public_reviews=public_reviews)
 
     @app.get('/for-you')
     @login_required

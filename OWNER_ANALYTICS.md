@@ -1,4 +1,4 @@
-# Creator credit & private analytics — CineCompass 3.2.0
+# Creator credit & private analytics — CineCompass 3.3.0
 
 This code-only update includes the previous account/search/sentiment fixes. It adds:
 
@@ -9,10 +9,10 @@ This code-only update includes the previous account/search/sentiment fixes. It a
 
 ## 1. Apply to your existing VS Code project
 
-Extract the ZIP to Downloads/cinecompass-owner-update-v5. In the terminal of your EXISTING project (the folder containing app.py and .git), run:
+Extract the ZIP to Downloads/cinecompass-community-update-v6. In the terminal of your EXISTING project (the folder containing app.py and .git), run:
 
 ```powershell
-.\.venv\Scripts\python.exe "$env:USERPROFILE\Downloads\cinecompass-owner-update-v5\apply_update.py"
+.\.venv\Scripts\python.exe "$env:USERPROFILE\Downloads\cinecompass-community-update-v6\apply_update.py"
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe init_db.py
 git add .
@@ -40,7 +40,7 @@ python init_db.py && gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads
 
 Keep APP_ENV=production, PYTHON_VERSION=3.11.11, valid TMDB_READ_TOKEN, a FIXED strong SECRET_KEY and persistent PostgreSQL DATABASE_URL. Do not replace the secret or database with placeholders. Environment variables belong to the WEB SERVICE. Render's Production dashboard label does not set APP_ENV.
 
-Wait for Live. https://cinecompass-2.onrender.com/api/status should show version 3.2.0. The flags only indicate configuration, not verified provider access. /health checks the database connection. The About link and footer credit appear without admin configuration.
+Wait for Live. https://cinecompass-2.onrender.com/api/status should show version 3.3.0. The flags only indicate configuration, not verified provider access. /health checks the database connection. The About link and footer credit appear without admin configuration.
 
 ## 3. Give ONLY YOUR account dashboard access
 
@@ -80,7 +80,7 @@ Daily visitors are not added together to calculate period visitors; returning br
 
 ## Privacy & storage
 
-No third-party analytics subscription or API key is needed. Usage analytics stores fixed route categories and counts plus a keyed digest of a random browser identifier. It does NOT store IP addresses, account IDs, search text, movie IDs, review text or referrers. The application still stores account/watchlist data and opt-in saved review text separately. Hosting/server access logs are separate and can contain request details, as disclosed on /privacy.
+No third-party analytics subscription or API key is needed. Usage analytics stores fixed route categories and counts plus a keyed digest of a random browser identifier. It does NOT store IP addresses, account IDs, search text, movie IDs, review text or referrers. The application stores account/watchlist data, private saved analyses and user-published movie ratings/reviews separately. Published movie reviews are public account contributions; see COMMUNITY_REVIEWS.md. Hosting/server access logs are separate and can contain request details, as disclosed on /privacy.
 
 Analytics is off until allowed. The preference cookie lasts 1 year; the random visitor cookie lasts 30 days. Cookies are HttpOnly, SameSite=Lax and Secure in production. DNT and GPC override consent. Decline deletes the visitor cookie and stops future collection. Prior anonymous data remains until retention cleanup.
 

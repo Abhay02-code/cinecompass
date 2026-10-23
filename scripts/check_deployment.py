@@ -21,8 +21,8 @@ def main():
         print('Deployed version:', data.get('version', 'unknown'))
         print('Movie credential configured:', bool(data.get('movie_data_configured')))
         print('Shared account database:', bool(data.get('shared_account_database')))
-        if data.get('version') != '3.2.0':
-            print('OLD RELEASE: deploy the latest 3.2.0 patch commit.')
+        if data.get('version') != '3.3.0':
+            print('OLD RELEASE: deploy the latest 3.3.0 patch commit.')
             return 1
         if not data.get('shared_account_database'):
             print('ACTION: configure persistent PostgreSQL DATABASE_URL and APP_ENV=production.')

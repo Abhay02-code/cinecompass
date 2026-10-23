@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectMultipleField, SubmitField, BooleanField, HiddenField
+from wtforms import StringField, PasswordField, SelectMultipleField, SubmitField, BooleanField, HiddenField, RadioField, TextAreaField
 from wtforms.validators import DataRequired, Length, Regexp, EqualTo
 from tmdb import GENRES
 
@@ -44,3 +44,12 @@ class LoginForm(FlaskForm):
 class PreferenceForm(FlaskForm):
     genres = SelectMultipleField('Favourite genres (Ctrl/Cmd + click to select several)', choices=[(str(k), v) for k, v in GENRES.items()])
     submit = SubmitField('Save preferences')
+
+
+class MovieReviewForm(FlaskForm):
+    # Integer coercion plus choice validation rejects fractional/out-of-range stars.
+    rating = RadioField('Your rating', coerce=int, choices=[(n, str(n)) for n in range(1,6)],
+                        validators=[DataRequired(message='Choose a rating from 1 to 5 stars.')])
+    body = TextAreaField('Your review (optional)', filters=[lambda value: value.strip() if value else ''],
+                         validators=[Length(max=3000, message='Keep your review within 3,000 characters.')])
+    submit = SubmitField('Publish rating & review')

@@ -1,4 +1,4 @@
-# Account and sentiment update — release 3.2.0
+# Account and sentiment update — release 3.3.0
 
 ## Changes
 
@@ -17,12 +17,13 @@ Existing usernames, password hashes and database schema are unchanged. No databa
 
 ## Apply to the EXISTING project
 
-Extract the ZIP in Downloads to a folder named `cinecompass-owner-update-v5`.
+Extract the ZIP in Downloads to a folder named `cinecompass-community-update-v6`.
 Keep your existing CineCompass repository open in VS Code, then run from its terminal:
 
 ```powershell
-.\.venv\Scripts\python.exe "$env:USERPROFILE\Downloads\cinecompass-owner-update-v5\apply_update.py"
+.\.venv\Scripts\python.exe "$env:USERPROFILE\Downloads\cinecompass-community-update-v6\apply_update.py"
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe init_db.py
 git add .
 git commit -m "Fix accounts sentiment and movie search"
 git push
@@ -50,7 +51,7 @@ python init_db.py && gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads
 
 ## Verify after deploying
 
-Open `/api/status` on your live service. The release should be 3.2.0. `shared_account_database: true` indicates PostgreSQL is configured (not proof of reachability); `/health` checks an actual database connection. No credentials are exposed by either endpoint.
+Open `/api/status` on your live service. The release should be 3.3.0. `shared_account_database: true` indicates PostgreSQL is configured (not proof of reachability); `/health` checks an actual database connection. No credentials are exposed by either endpoint.
 
 1. Create a new account on the LIVE site using a 3–40 character username and a 10–128 character password.
 2. Confirm you arrive signed in at My library.
