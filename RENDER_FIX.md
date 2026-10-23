@@ -1,6 +1,6 @@
 For account problems, follow AUTH_FIX.md. This release includes the previous movie-data repair.
 
-# Render repair — version 3.3.0
+# Render repair — version 3.4.0
 
 Two separate issues caused the screenshot:
 
@@ -11,11 +11,11 @@ This patch includes the complete current frontend and search endpoint; removes d
 
 ## Apply to the existing GitHub project
 
-Extract the repair ZIP to a folder named cinecompass-community-update-v6 in Downloads.
+Extract the repair ZIP to a folder named cinecompass-free-movies-v7 in Downloads.
 Keep your existing repository open in VS Code. From its terminal (the directory containing app.py):
 
 ```powershell
-.\.venv\Scripts\python.exe "$env:USERPROFILE\Downloads\cinecompass-community-update-v6\apply_update.py"
+.\.venv\Scripts\python.exe "$env:USERPROFILE\Downloads\cinecompass-free-movies-v7\apply_update.py"
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 git add .
 git commit -m "Fix deployed movie search and remove public setup screen"
@@ -45,7 +45,7 @@ Open https://cinecompass-2.onrender.com/api/status.
 Expected after applying the patch AND adding the credential:
 
 ```json
-{"version":"3.3.0","movie_data_configured":true,"shared_account_database":true}
+{"version":"3.4.0","movie_data_configured":true,"shared_account_database":true}
 ```
 
 True only means a non-empty credential was loaded; it does not prove the token is valid. Then open:

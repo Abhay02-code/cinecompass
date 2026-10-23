@@ -1,10 +1,12 @@
-New in release 3.3.0: COMMUNITY_REVIEWS.md explains public ratings, reviews, counts and deployment.
+New in 3.4.0: read FREE_MOVIES.md for free discovery, direct-link limitations, owner setup and deployment.
 
-For release 3.3.0 creator credit and analytics setup, read OWNER_ANALYTICS.md first.
+New in release 3.4.0: COMMUNITY_REVIEWS.md explains public ratings, reviews, counts and deployment.
+
+For release 3.4.0 creator credit and analytics setup, read OWNER_ANALYTICS.md first.
 
 For signup/login fixes on an existing project, read AUTH_FIX.md.
 
-Version 3.3.0. For an existing Render deployment, follow RENDER_FIX.md.
+Version 3.4.0. For an existing Render deployment, follow RENDER_FIX.md.
 
 # Abhay — start here
 

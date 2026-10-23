@@ -1,4 +1,4 @@
-# CineCompass public movie ratings & reviews — release 3.3.0
+# CineCompass public movie ratings & reviews — release 3.4.0
 
 ## What visitors see
 
@@ -25,10 +25,10 @@ Example: 12 accounts leave ratings and only 7 write text → 12 ratings · 7 wri
 
 ## Apply to your EXISTING project
 
-Extract the ZIP to Downloads/cinecompass-community-update-v6. Open your existing repository in VS Code and run from its terminal:
+Extract the ZIP to Downloads/cinecompass-free-movies-v7. Open your existing repository in VS Code and run from its terminal:
 
 ```powershell
-.\.venv\Scripts\python.exe "$env:USERPROFILE\Downloads\cinecompass-community-update-v6\apply_update.py"
+.\.venv\Scripts\python.exe "$env:USERPROFILE\Downloads\cinecompass-free-movies-v7\apply_update.py"
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe init_db.py
 git add .
@@ -54,7 +54,7 @@ This command runs on Render, not Windows PowerShell. Table initialization must r
 
 Keep your existing valid TMDB_READ_TOKEN, fixed SECRET_KEY, persistent PostgreSQL DATABASE_URL, APP_ENV=production and PYTHON_VERSION=3.11.11. If you configured ADMIN_USER_ID=1 for your existing live account, keep it unchanged. No new API key or service is required.
 
-After Live, open https://cinecompass-2.onrender.com/api/status and check version 3.3.0. Hard-refresh the movie page (Ctrl+Shift+R). Movie data still depends on working TMDB access; local reviews require the application database.
+After Live, open https://cinecompass-2.onrender.com/api/status and check version 3.4.0. Hard-refresh the movie page (Ctrl+Shift+R). Movie data still depends on working TMDB access; local reviews require the application database.
 
 ## Owner moderation
 

@@ -87,3 +87,14 @@ def candidates(movie_id):
         except MovieError:
             warnings.append('Some recommendation candidates could not be loaded.')
     return pool, warnings
+
+
+def discover_free(region='IN', mode='all', page=1):
+    """Only free/advertising offers; never include subscription/rental/purchase."""
+    return fetch('discover/movie',page=page,watch_region=region,
+                 with_watch_monetization_types='free|ads' if mode=='all' else mode,
+                 include_adult='false',sort_by='popularity.desc')
+
+
+def watch_providers(movie_id):
+    return fetch(f'movie/{movie_id}/watch/providers')

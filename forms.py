@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectMultipleField, SubmitField, BooleanField, HiddenField, RadioField, TextAreaField
-from wtforms.validators import DataRequired, Length, Regexp, EqualTo
+from wtforms import StringField, PasswordField, SelectMultipleField, SubmitField, BooleanField, HiddenField, RadioField, TextAreaField, IntegerField, SelectField
+from wtforms.validators import DataRequired, Length, Regexp, EqualTo, InputRequired, NumberRange
 from tmdb import GENRES
 
 
@@ -53,3 +53,15 @@ class MovieReviewForm(FlaskForm):
     body = TextAreaField('Your review (optional)', filters=[lambda value: value.strip() if value else ''],
                          validators=[Length(max=3000, message='Keep your review within 3,000 characters.')])
     submit = SubmitField('Publish rating & review')
+
+
+class FreeWatchLinkForm(FlaskForm):
+    movie_id = IntegerField('Movie ID', validators=[InputRequired(),NumberRange(min=1,max=2147483647)])
+    region = SelectField('Country', choices=[('IN','India'),('US','United States'),('GB','United Kingdom'),('CA','Canada'),('AU','Australia')])
+    provider = StringField('Official platform / authorised channel',filters=[lambda v:v.strip() if v else ''],
+                           validators=[DataRequired(),Length(max=80)])
+    kind = SelectField('Free offer type', choices=[('free','Free without ads'),('ads','Free with ads')])
+    url = StringField('Exact full-movie page URL',filters=[lambda v:v.strip() if v else ''],
+                     validators=[DataRequired(),Length(max=1500)])
+    confirmed = BooleanField('I checked this full movie is legally free in this country on the official platform or authorised channel. It is not a trailer, trial, subscription or rental.',validators=[DataRequired(message='Check the movie, country, rights/source and free access before publishing.')])
+    submit = SubmitField('Publish checked link')

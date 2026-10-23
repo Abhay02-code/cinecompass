@@ -175,11 +175,11 @@ class ProjectTests(unittest.TestCase):
 
     def test_deployment_version_and_asset_refresh(self):
         status = self.client.get('/api/status')
-        self.assertEqual(status.json['version'], '3.3.0')
+        self.assertEqual(status.json['version'], '3.4.0')
         self.assertFalse(status.json['movie_data_configured'])
         self.assertEqual(set(status.json), {'version', 'movie_data_configured', 'shared_account_database'})
         self.assertEqual(status.headers['Cache-Control'], 'no-store')
-        self.assertIn(b'app.js?v=3.3.0', self.client.get('/').data)
-        self.assertIn(b'style.css?v=3.3.0', self.client.get('/').data)
+        self.assertIn(b'app.js?v=3.4.0', self.client.get('/').data)
+        self.assertIn(b'style.css?v=3.4.0', self.client.get('/').data)
 
 if __name__=='__main__': unittest.main()

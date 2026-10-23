@@ -1,10 +1,12 @@
-For public movie ratings, written reviews and community counts (release 3.3.0), read **COMMUNITY_REVIEWS.md** first.
+For the free movie catalogue and exact owner-checked streaming links (release 3.4.0), start with **FREE_MOVIES.md**.
 
-For creator credit and private analytics setup (release 3.3.0), start with **OWNER_ANALYTICS.md**.
+For public movie ratings, written reviews and community counts (release 3.4.0), read **COMMUNITY_REVIEWS.md** first.
 
-> Account update 3.3.0: read AUTH_FIX.md for signup/login improvements and Render account persistence requirements.
+For creator credit and private analytics setup (release 3.4.0), start with **OWNER_ANALYTICS.md**.
 
-> Version 3.3.0: public setup instructions have been removed. Read RENDER_FIX.md if Render search is not working. Configure TMDB_READ_TOKEN on the actual web service; .env is local only. /api/status identifies this release.
+> Account update 3.4.0: read AUTH_FIX.md for signup/login improvements and Render account persistence requirements.
+
+> Version 3.4.0: public setup instructions have been removed. Read RENDER_FIX.md if Render search is not working. Configure TMDB_READ_TOKEN on the actual web service; .env is local only. /api/status identifies this release.
 
 # CineCompass — movie discovery, sentiment & recommendations
 

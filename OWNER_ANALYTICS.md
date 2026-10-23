@@ -1,4 +1,4 @@
-# Creator credit & private analytics — CineCompass 3.3.0
+# Creator credit & private analytics — CineCompass 3.4.0
 
 This code-only update includes the previous account/search/sentiment fixes. It adds:
 
@@ -9,10 +9,10 @@ This code-only update includes the previous account/search/sentiment fixes. It a
 
 ## 1. Apply to your existing VS Code project
 
-Extract the ZIP to Downloads/cinecompass-community-update-v6. In the terminal of your EXISTING project (the folder containing app.py and .git), run:
+Extract the ZIP to Downloads/cinecompass-free-movies-v7. In the terminal of your EXISTING project (the folder containing app.py and .git), run:
 
 ```powershell
-.\.venv\Scripts\python.exe "$env:USERPROFILE\Downloads\cinecompass-community-update-v6\apply_update.py"
+.\.venv\Scripts\python.exe "$env:USERPROFILE\Downloads\cinecompass-free-movies-v7\apply_update.py"
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe init_db.py
 git add .
@@ -40,7 +40,7 @@ python init_db.py && gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads
 
 Keep APP_ENV=production, PYTHON_VERSION=3.11.11, valid TMDB_READ_TOKEN, a FIXED strong SECRET_KEY and persistent PostgreSQL DATABASE_URL. Do not replace the secret or database with placeholders. Environment variables belong to the WEB SERVICE. Render's Production dashboard label does not set APP_ENV.
 
-Wait for Live. https://cinecompass-2.onrender.com/api/status should show version 3.3.0. The flags only indicate configuration, not verified provider access. /health checks the database connection. The About link and footer credit appear without admin configuration.
+Wait for Live. https://cinecompass-2.onrender.com/api/status should show version 3.4.0. The flags only indicate configuration, not verified provider access. /health checks the database connection. The About link and footer credit appear without admin configuration.
 
 ## 3. Give ONLY YOUR account dashboard access
 

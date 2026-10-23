@@ -24,7 +24,7 @@ from extensions import db, limiter
 CONSENT_COOKIE = 'cc_analytics'
 VISITOR_COOKIE = 'cc_visitor'
 PAGE_PATHS = {'index':'/', 'movie':'/movie/<id>', 'model_card':'/model',
-              'for_you':'/for-you', 'library':'/library', 'about':'/about'}
+              'for_you':'/for-you', 'library':'/library', 'about':'/about', 'free_movies':'/free-movies'}
 KNOWN_BOTS = re.compile(r'bot|crawler|spider|headless|preview|uptime|monitor', re.I)
 
 

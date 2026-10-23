@@ -14,3 +14,4 @@ numpy==2.2.6
 scipy==1.15.3
 SQLAlchemy==2.0.43
 vaderSentiment==3.3.2
+WTForms==3.3.0

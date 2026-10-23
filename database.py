@@ -63,3 +63,23 @@ class MovieReview(db.Model):
         db.UniqueConstraint('user_id', 'movie_id', name='uq_movie_review_user_movie'),
         db.CheckConstraint('rating >= 1 AND rating <= 5', name='ck_movie_review_rating'),
     )
+
+
+class FreeWatchLink(db.Model):
+    """Owner-checked full-movie links; expire unless explicitly checked again."""
+    id = db.Column(db.Integer, primary_key=True)
+    movie_id = db.Column(db.Integer, nullable=False, index=True)
+    movie_title = db.Column(db.String(300), nullable=False)
+    poster_path = db.Column(db.String(300))
+    region = db.Column(db.String(2), nullable=False)
+    provider = db.Column(db.String(80), nullable=False)
+    kind = db.Column(db.String(8), nullable=False)
+    url = db.Column(db.Text, nullable=False)
+    url_hash = db.Column(db.String(64), nullable=False)
+    checked_on = db.Column(db.Date, nullable=False)
+    expires_on = db.Column(db.Date, nullable=False, index=True)
+    checked_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    __table_args__ = (
+        db.UniqueConstraint('movie_id','region','url_hash',name='uq_free_watch_movie_region_url'),
+        db.CheckConstraint("kind IN ('free','ads')",name='ck_free_watch_kind'),
+    )

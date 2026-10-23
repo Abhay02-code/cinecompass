@@ -20,9 +20,10 @@ import tmdb
 import ml
 from analytics import register_analytics
 from community import community_context, register_community
+from streaming import watch_context, register_streaming
 
 ROOT = Path(__file__).resolve().parent
-RELEASE = '3.3.0'
+RELEASE = '3.4.0'
 load_dotenv(ROOT / '.env', encoding='utf-8-sig')
 
 
@@ -168,11 +169,12 @@ def create_app(test_config=None):
         trailer=next((v['key'] for v in item.get('videos',{}).get('results',[]) if v.get('site')=='YouTube' and v.get('type')=='Trailer' and re.fullmatch(r'[\w-]+',v.get('key',''))),None)
         return render_template('movie.html',movie=item,reviews=reviews,summary=ml.aggregate(reviews),total=total,
                                truncated=truncated,warning=warning,recs=recs,rec_warnings=warnings,saved=saved,trailer=trailer,
-                               **community_context(movie_id,community_form)), status
+                               **community_context(movie_id,community_form), **watch_context(movie_id)), status
 
     register_account_routes(app)
     register_analytics(app)
     register_community(app, movie)
+    register_streaming(app)
 
     @app.post('/watchlist/<int:movie_id>')
     @login_required
